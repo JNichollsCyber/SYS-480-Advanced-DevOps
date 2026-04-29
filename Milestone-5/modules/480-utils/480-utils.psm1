@@ -58,3 +58,59 @@ Function Select-VM([string] $folder)
         Write-Host "Invalid Folder: $folder" -ForegroundColor "Red"
     }
 }
+function cloneVM($conf, $selected_vm)
+{
+    $newname = Read-Host "Enter name for new vm"
+    try {
+        Get-VM -name $newname -ErrorAction Stop | Out-Null
+        Write-Host "---------------------------"
+        Write-Host "ERROR: VM '$newname' already exists" -ForegroundColor Yellow
+        Write-Host "Select Different Name"
+        Write-Host "---------------------------"
+    }
+    catch {
+        Write-Host $selected_vm
+        $vm = $selected_vm
+        $snapshot = Get-Snapshot -VM $vm -Name $conf.snapshot | Select-Object -First 1
+        $vmhost = Get-VMHost -name $conf.esxi_host
+        $ds = Get-Datastore -name $conf.datastore
+        $vmnetwork = $conf.default_network
+
+        Write-Host "The following will be used"
+        Write-Host "---------------------------"
+        Write-Host "Base VM: $vm"
+        Write-Host "Base Snapshot: $snapshot"
+        Write-Host "ESXi Host: $vmhost"
+        Write-Host "Datastore: $ds"
+        Write-Host "New VM Name: $newname"
+        Write-Host "Network: $vmnetwork"
+        Write-Host "---------------------------"
+        $checking = Read-Host "Please Select Deployment Type: [F]ull Clone, [L]inked Clone, or [Q]uit"
+
+        if ($checking.Trim().Substring(0,1).ToUpper() -eq "F") {
+            Write-Host "---------------------------"
+            $check_again = Read-Host "Confirm VM Deployment? (Y/N)"
+            if ($check_again.Substring(0,1).ToUpper() -eq "Y")
+                {
+                $newvm = New-VM -Name "$newname" -VM $vm -VMHost $vmhost
+                $newvm | New-Snapshot -Name "base"
+                }
+            else {
+                Write-Host "Aborting" -ForegroundColor Yellow
+            }}
+        elseif ($checking.Trim().Substring(0,1).ToUpper() -eq "L"){
+            Write-Host "---------------------------"
+            $check_again = Read-Host "Confirm Deployment (Y/N)"
+            if ($check_again.Substring(0,1).ToUpper() -eq "Y")
+            {
+                $newvm = New-VM -LinkedClone -Name "$newname" -VM $vm -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $ds -Confirm:$false
+                $newvm | New-Snapshot -Name "base"
+            }
+            else {
+                Write-Host "Aborting" -ForegroundColor Yellow
+            }
+        }else {
+            Write-Host "Aborting" -ForegroundColor Yellow
+        }
+    }
+}
