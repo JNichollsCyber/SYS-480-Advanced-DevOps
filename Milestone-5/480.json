@@ -1,0 +1,8 @@
+{
+    "vcenter_server" : "vcenter01.james.local",
+    "vm_folder" : "BASE",
+    "esxi_host" : "192.168.3.229",
+    "default_network" : "WAN-JNicholls",
+    "datastore" : "datastore2-super29",
+    "snapshot" : "base"
+}
