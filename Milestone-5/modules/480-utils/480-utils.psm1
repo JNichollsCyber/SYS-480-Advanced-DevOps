@@ -197,3 +197,66 @@ function ChangeState() {
         Write-Host "Not a Valid Option, Select Again" -ForegroundColor Yellow
     }
 }
+
+function Set-Network () {
+    Write-Host "Select VM to configure network"
+    $index = 1
+    $vms = Get-VM
+
+    foreach($i in $vms) {
+        Write-Host "[$($index)] $($i.Name)"
+        $index += 1
+    }
+
+    $select = Read-Host "Enter Number Here: "
+
+    if ($select -in 1..$vms.count) {
+        $selected_vm = $vms[$select -1].Name
+        Write-Host "'$selected_vm' was chosen" -ForegroundColor Yellow
+    } else {
+        Write-Host "Invalid Option, Select Again" -ForegroundColor Yellow
+        return
+    }
+
+    #Show Available Adapters
+    Write-Host "Select a Net Adapter on 'selected_vm'"
+    $index2 = 1
+    $net_adapt = Get-VM -Name $selected_vm | Get-NetworkAdapter
+
+    foreach($iface in $net_adapt) {
+        Write-Host "[$($index2)] $($iface.Name)"
+        $index2 += 1
+    }
+
+    $select2 = Read-Host "Enter Index Number Here"
+
+     if ($select2 -in 1..$net_adapt.count) {
+        $config_adapt = $net_adapt[$select2 -1]
+        Write-Host "Interface '$($config_adapt.Name)' was selected" -ForegroundColor Yellow
+     } else {
+        Write-Host "Invalid Option, Select Again" -ForegroundColor Yellow
+        return
+     }
+
+     Write-Host "Select a network to assign to adapter"
+
+     $index3 = 1
+     $networks = Get-VirtualNetwork
+
+     foreach ($network in $networks) {
+        Write-Host "[$($index3)] $($network.Name)"
+        $index3 += 1
+     }
+
+     $select3 = Read-Host "Enter Index Number"
+
+     if ($select3 -in 1..$networks.count) {
+        $networkSelection = $networks[$select3 -1].Name
+        Write-Host "'$networkSelection' was selected" -ForegroundColor Yellow
+        Write-Host "Configuring Network Adapter..."
+        Set-NetworkAdapter -NetworkAdapter $config_adapt -NetworkName "$networkSelection" -Confirm:$true
+     } else {
+        Write-Host "Invalid Option, Select Again" -ForegroundColor Yellow
+        return
+     }
+}

@@ -6,9 +6,10 @@ $conf = Get-480Config -config_path "/home/jnicholls/SYS-480-Advanced-DevOps/Mile
 480Connect -server $conf.vcenter_server
 #Write-Host "Selecting your VM"
 #Select-VM -folder "BASE"
-$selected_vm = Select-VM -folder $conf.vm_folder
-cloneVM $conf $selected_vm
+#$selected_vm = Select-VM -folder $conf.vm_folder
+#cloneVM $conf $selected_vm
 #New-Network $conf
+Set-Network
 
 #Get-IP (Read-Host "Enter VM name")
 
