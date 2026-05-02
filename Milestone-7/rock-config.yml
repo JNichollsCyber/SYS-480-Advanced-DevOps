@@ -1,0 +1,61 @@
+- name: post provision rocky hosts
+  hosts: rocky
+
+  tasks:
+  - name: create .ssh directory
+    file:
+      path: "/home/{{ ansible_user }}/.ssh"
+      state: directory
+      mode: 0700
+  - name: create auth_key file
+    file:
+      path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+      state: touch
+      mode: 0644
+  - name: add deployer public key
+    blockinfile:
+      dest: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+      block: "{{ public_key }}"
+
+  - name: create sudoers drop-in file
+    file:
+      path: /etc/sudoers.d/480
+      state: touch
+      mode: 0440
+    become: yes
+
+  - name: create sudo drop-in file entry
+    blockinfile:
+      dest: /etc/sudoers.d/480
+      block: "{{ ansible_user }}  ALL=(ALL) NOPASSWD: ALL"
+    become: yes
+
+  - name: change hostname
+    hostname:
+      name: "{{ hostname }}"
+    become: yes
+
+  - name: update hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: '127.0.1.1 {{ hostname }}'
+    become: yes
+
+  - name: set static ip
+    nmcli:
+      conn_name: "{{ device }}"
+      ip4: "{{ lan_ip }}/24"
+      gw4: "{{ gateway }}"
+      state: present
+      type: ethernet
+      dns4:
+        - "{{ name_server }}"
+        - "{{ gateway }}"
+      method4: manual
+    become: yes
+
+  - name: bounce box and restart
+    shell: "sleep 5 && shutdown -r now"
+    become: yes
+    async: 1
+    poll: 0

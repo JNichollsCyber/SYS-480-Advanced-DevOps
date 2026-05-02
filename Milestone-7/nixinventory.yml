@@ -1,0 +1,36 @@
+---
+all:
+  children:
+    rocky:
+      hosts:
+        rocky-01:
+          ansible_host: 10.0.5.75
+          hostname: rocky-1
+          lan_ip: 10.0.5.10
+        rocky-02:
+          ansible_host: 10.0.5.76
+          hostname: rocky-2
+          lan_ip: 10.0.5.11
+        rocky-03:
+          ansible_host: 10.0.5.77
+          hostname: rocky-3
+          lan_ip: 10.0.5.12
+      vars:
+        device: ens33
+    ubuntu:
+      hosts:
+        ubuntu-01:
+          ansible_host: 10.0.5.78
+          hostname: ubuntu-1
+          lan_ip: 10.0.5.30
+        ubuntu-02:
+          ansible_host: 10.0.5.79
+          hostname: ubuntu-2
+          lan_ip: 10.0.5.31
+      vars:
+        device: ens34
+  vars:
+    ansible_user: deployer
+    public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA9whQphrkW7i1hBzjwLQhrDkI2DXhi2mbl3sBlEve1B jnicholls@MGMT01-JNicholls"
+    gateway: 10.0.5.2 
+    name_server: 10.0.5.2

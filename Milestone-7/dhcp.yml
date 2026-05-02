@@ -1,0 +1,18 @@
+- name: configure vyos dhcp server
+  hosts: blue29-fw
+  connection: network_cli
+  vars:
+    ansible_network_os: vyos.vyos.vyos
+  
+  tasks:
+  - name: set dhcp server config
+    vyos_config:
+      save: yes
+      lines:
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} authoritative"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} default-router {{ blue29_gtw }}"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} domain-name {{ domain_name }}"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} lease 86400"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} name-server {{ nameserver }}"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} range {{ dhcp_net }}--POOL start 10.0.5.75"
+        - "set service dhcp-server shared-network-name {{ dhcp_net }} subnet {{ lan_net }} range {{ dhcp_net }}--POOL stop 10.0.5.125"
