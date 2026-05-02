@@ -11,6 +11,6 @@ all:
     gateway: 10.0.5.2 
     name_server: 10.0.5.2
     ansible_shell_type: powershell
-    dns_domain_name: blue29.jesse
+    dns_domain_name: blue29.james
     safe_mode_password: "P@ssw0rd!"
     domain_netbios_name: BLUE29
