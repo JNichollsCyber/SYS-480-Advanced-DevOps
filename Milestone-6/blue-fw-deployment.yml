@@ -1,0 +1,21 @@
+- name: vyos deployment post-provisioning
+  hosts: blue29-fw
+  vars_prompt:
+    - name: password
+      prompt: enter new vyos pass here
+      private: true
+  tasks:
+    - name: set vyos password
+      ansible.builtin.set_fact:
+        password_hash: "{{ password | password_hash('sha512') }}"
+    - name: load config from template
+      become: yes
+      ansible.builtin.template:
+         src: ./config.boot.j2
+         dest: /config/config.boot
+         mode: "0755"
+         owner: root
+         group: vyattacfg
+    - name: reboot and apply config
+      become: true
+      ansible.builtin.shell: nohup bash -c "/usr/bin/sleep 3 && /usr/sbin/shutdown -r  now" &

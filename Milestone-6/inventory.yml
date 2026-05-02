@@ -1,9 +1,8 @@
 ---
-
 blue:
   hosts:
     blue29-fw:
-      ansible_host: 10.0.17.200
+      ansible_host: 10.0.17.102
       ansible_user: vyos
       hostname: blue29-fw
       mac_address: 00:50:56:bf:11:7c
