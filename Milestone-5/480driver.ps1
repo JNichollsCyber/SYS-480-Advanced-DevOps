@@ -9,13 +9,13 @@ $conf = Get-480Config -config_path "/home/jnicholls/SYS-480-Advanced-DevOps/Mile
 #$selected_vm = Select-VM -folder $conf.vm_folder
 #cloneVM $conf $selected_vm
 #New-Network $conf
-Set-Network
+#Set-Network
 
 #Get-IP (Read-Host "Enter VM name")
 
 #Start-VMs -name "blue29-fw"
 
-
+Win_IP
 
 #ChangeState
 

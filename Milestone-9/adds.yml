@@ -1,0 +1,63 @@
+- name: Deploy AD
+  hosts: win_server
+  vars_prompt:
+    - name: "admin_pass"
+      prompt: "Please enter a new admin password"
+      private: yes
+      confirm: yes
+    - name: "recovery"
+      prompt: "Please enter recovery password for domain"
+      private: yes
+      confirm: yes
+
+  tasks:
+    - name: Set new admin user password
+      ansible.windows.win_user:
+        name: administrator
+        password: "{{ admin_pass }}"
+        state: present
+
+    - name: Set hostname
+      ansible.windows.win_hostname:
+        name: "{{ hostname }}"
+      register: hostname_change
+
+    - name: Reboot hostname config
+      ansible.windows.win_reboot:
+      when: hostname_change.reboot_required
+
+    - name: Install AD role
+      ansible.windows.win_feature:
+        name: AD-Domain-Services
+        state: present
+        include_management_tools: yes
+      register: ad_ds
+
+    - name: Create new AD forest
+      microsoft.ad.domain:
+        dns_domain_name: blue29.local
+        safe_mode_password: "{{ recovery }}"
+        domain_netbios_name:
+      register: domain_creation
+
+    - name: Reboot for AD initial config
+      ansible.windows.win_reboot:
+        test_command: 'exit (Get-Service -Name DNS).Status -ne "Running"'
+      when: domain_creation.reboot_required
+
+    - name: Set DNS forwarder
+      ansible.windows.win_shell: |
+        Add-DnsServerForwarder -IPAddress "{{ name_server }}"
+
+    - name: Wait timer for AD config
+      ansible.builtin.pause:
+        seconds: 90
+
+    - name: Copy OU script
+      ansible.builtin.copy:
+        src: ./ou.ps1
+        dest: C:\Users\deployer/ou.ps1
+
+    - name: Run OU script
+      ansible.windows.win_shell: |
+        powershell -ExecutionPolicy Bypass -File C:\Users\deployer\ou.ps1

@@ -260,3 +260,19 @@ function Set-Network () {
         return
      }
 }
+
+function Win_IP () {
+    $vm = Read-Host -Prompt "Enter VM to Configure"
+    $user = Read-Host -Prompt "Enter User to Run Command"
+    $pw = Read-Host -Prompt "Enter Password for User" -AsSecureString
+    $pw2 = [System.Net.NetworkCredential]::new("", $pw).Password
+    $script = @"
+netsh interface ip set address "Ethernet0" static 10.0.5.5 255.255.255.0 10.0.5.2
+netsh interface ip set dnsservers "Ethernet0" static 10.0.5.2
+ipconfig /all
+"@
+
+    $output = Invoke-VMScript -VM "$vm" -ScriptText "$script" -GuestUser "$user" -GuestPassword "$pw2" -ScriptType PowerShell
+    Write-Host $output.ScriptOutput
+    Write-Host "Config Complete" -ForegroundColor Green
+}

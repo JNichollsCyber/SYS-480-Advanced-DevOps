@@ -1,0 +1,16 @@
+---
+all:
+  children:
+    windows:
+      hosts:
+        win_server:
+          ansible_host: 10.0.5.5
+          hostname: blue-dc01
+  vars:
+    ansible_user: deployer
+    gateway: 10.0.5.2 
+    name_server: 10.0.5.2
+    ansible_shell_type: powershell
+    dns_domain_name: blue29.jesse
+    safe_mode_password: "P@ssw0rd!"
+    domain_netbios_name: BLUE29
